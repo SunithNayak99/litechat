@@ -1,0 +1,118 @@
+/* General reset */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #f3f3f3;
+}
+
+/* Chat Container */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Header */
+.chat-header {
+    background-color: #0078ff;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 20px;
+}
+
+/* Chat Box */
+.chat-box {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #fafafa;
+}
+
+/* Individual Message */
+.message {
+    margin: 10px 0;
+    max-width: 70%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sender Name */
+.message .name {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 2px;
+    color: #555;
+}
+
+/* Message Content */
+.message .content {
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+/* Sent Messages (Right Side) */
+.message.sent {
+    align-self: flex-end;
+    text-align: right;
+}
+
+.message.sent .content {
+    background-color: #dcf8c6;
+    color: #000;
+}
+
+/* Received Messages (Left Side) */
+.message.received {
+    align-self: flex-start;
+    text-align: left;
+}
+
+.message.received .content {
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #ddd;
+}
+
+/* Chat Input */
+.chat-input {
+    display: flex;
+    padding: 10px;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    margin-right: 10px;
+}
+
+.chat-input button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #0078ff;
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.chat-input button:hover {
+    background-color: #005bb5;
+}
