@@ -9,15 +9,40 @@ const io = socketIo(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-io.on('connection', (socket) => {
-    console.log('A user connected');
+let waitingUser = null;
 
-    socket.on('chat message', (data) => {
-        io.emit('chat message', data); // Broadcast name and message
+io.on('connection', (socket) => {
+    console.log('User connected:', socket.id);
+
+    socket.on('set name', (name) => {
+        socket.username = name;
+        if (waitingUser) {
+            socket.partner = waitingUser;
+            waitingUser.partner = socket;
+
+            socket.emit('paired');
+            waitingUser.emit('paired');
+
+            waitingUser = null;
+        } else {
+            waitingUser = socket;
+        }
+    });
+
+    socket.on('chat message', (msg) => {
+        if (socket.partner) {
+            socket.partner.emit('chat message', msg);
+        }
     });
 
     socket.on('disconnect', () => {
-        console.log('A user disconnected');
+        if (socket.partner) {
+            socket.partner.emit('partner left');
+            socket.partner.partner = null;
+        } else if (waitingUser === socket) {
+            waitingUser = null;
+        }
+        console.log('User disconnected:', socket.id);
     });
 });
 
