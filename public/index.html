@@ -1,28 +1,33 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Chat App</title>
+    <title>Random Chat App</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="chat-container">
-        <!-- Chat Header -->
+    <div class="mode-toggle">
+        <button id="mode-btn">🌙 Dark Mode</button>
+    </div>
+    <div class="name-overlay" id="name-overlay">
+        <h2>Enter Your Name</h2>
+        <input type="text" id="username" placeholder="Your name...">
+        <button onclick="enterChat()">Start Chat</button>
+    </div>
+    <div class="chat-container" style="display:none;">
         <div class="chat-header">
-            <h2>Live Chat App</h2>
+            <h2>Chat With Strangers..</h2>
         </div>
-
-        <!-- Chat Box -->
-        <div id="chat-box" class="chat-box"></div>
-
-        <!-- Message Input Section -->
+        <div id="chat-box" class="chat-box">
+            <div class="waiting-animation">🔗 Connecting to a random user...</div>
+        </div>
         <div class="chat-input">
-            <input type="text" id="message-input" placeholder="Type your message..." />
+            <input type="text" id="message-input" placeholder="Type your message...">
             <button id="send-btn">Send</button>
         </div>
     </div>
-
     <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>
