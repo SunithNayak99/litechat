@@ -1,50 +1,64 @@
-const socket = io(); // Connect to the socket.io server
+const socket = io();
+let username = '';
+let paired = false;
+
 const messageInput = document.getElementById('message-input');
 const sendButton = document.getElementById('send-btn');
 const chatBox = document.getElementById('chat-box');
+const chatContainer = document.querySelector('.chat-container');
+const nameOverlay = document.getElementById('name-overlay');
+const modeBtn = document.getElementById('mode-btn');
 
-let userName = '';
-
-// Prompt user for their name
-while (!userName) {
-    userName = prompt('Enter your name:').trim();
+function enterChat() {
+    username = document.getElementById('username').value.trim();
+    if (username) {
+        nameOverlay.style.display = 'none';
+        chatContainer.style.display = 'flex';
+        socket.emit('set name', username);
+    }
 }
-alert(`Welcome, ${userName}!`);
 
-// Function to append a message to the chat
-function appendMessage(name, message, type) {
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message', type); // 'sent' or 'received'
-
-    const nameDiv = document.createElement('div');
-    nameDiv.classList.add('name');
-    nameDiv.innerText = name;
-
-    const contentDiv = document.createElement('div');
-    contentDiv.classList.add('content');
-    contentDiv.innerText = message;
-
-    messageDiv.appendChild(nameDiv);
-    messageDiv.appendChild(contentDiv);
-    chatBox.appendChild(messageDiv);
-
-    // Scroll to the bottom
+function appendMessage(message, type = 'received') {
+    const div = document.createElement('div');
+    div.classList.add('message', type);
+    div.innerText = message;
+    chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Sending a message
+function setWaiting() {
+    chatBox.innerHTML = '<div class="waiting-animation">🔗 Connecting to a random user...</div>';
+}
+
+socket.on('paired', () => {
+    paired = true;
+    chatBox.innerHTML = ''; // Clear waiting
+    appendMessage('🎉 Connected to a stranger!', 'system');
+});
+
+socket.on('partner left', () => {
+    paired = false;
+    appendMessage('⚠️ Partner disconnected. Finding a new partner...', 'system');
+    setTimeout(() => {
+        setWaiting();
+        socket.emit('set name', username); // Re-announce after disconnect
+    }, 2000);
+});
+
 sendButton.addEventListener('click', () => {
-    const message = messageInput.value.trim(); // Get the input value and trim any whitespace
-    if (message) {
-        appendMessage(userName, message, 'sent'); // Add to UI as 'sent'
-        socket.emit('chat message', { name: userName, message }); // Send to server
-        messageInput.value = ''; // CLEAR the input field after sending
-        messageInput.focus(); // Optional: Bring focus back to the input field
+    const message = messageInput.value.trim();
+    if (message && paired) {
+        appendMessage(`You: ${message}`, 'sent');
+        socket.emit('chat message', message);
+        messageInput.value = '';
     }
 });
 
+socket.on('chat message', (message) => {
+    appendMessage(`Stranger: ${message}`, 'received');
+});
 
-// Receiving a message
-socket.on('chat message', (data) => {
-    appendMessage(data.name, data.message, 'received'); // Add to UI as 'received'
+modeBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    modeBtn.innerText = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
 });
