@@ -1,118 +1,76 @@
-
-/* Dark & Light Mode */
-:root {
-    --bg-color: #f3f3f3;
-    --text-color: #000;
-    --header-bg: #0078ff;
-    --input-bg: #fff;
-}
-
-.dark-mode {
-    --bg-color: #1e1e1e;
-    --text-color: #fff;
-    --header-bg: #444;
-    --input-bg: #333;
-}
-
 body {
     margin: 0;
+    padding: 0;
     font-family: Arial, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: #fff8f8;
+    color: white;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
     height: 100vh;
-    justify-content: center;
 }
 
-/* Name Overlay */
-.name-overlay {
-    position: absolute;
-    background: var(--bg-color);
-    color: var(--text-color);
-    border: 1px solid #ccc;
+.welcome-container, .chat-container {
+    background: #aaa7a7;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.2);
     text-align: center;
+    width: 90%;
+    max-width: 500px;
 }
 
-.name-overlay input {
-    padding: 10px;
-    margin: 10px 0;
-}
-
-.mode-toggle {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-/* Chat Container */
-.chat-container {
-    display: flex;
-    flex-direction: column;
-    height: 80vh;
+input, button {
     width: 100%;
-    max-width: 600px;
-    border: 1px solid #ddd;
-    background-color: var(--input-bg);
-    border-radius: 8px;
-    overflow: hidden;
+    padding: 10px;
+    margin: 8px 0;
 }
 
-.chat-header {
-    background-color: var(--header-bg);
+button {
+    background-color: #007bff;
     color: white;
-    text-align: center;
-    padding: 15px;
+    border: none;
+    cursor: pointer;
+}
+
+.video-section {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+video {
+    width: 48%;
+    background-color: #000;
 }
 
 .chat-box {
-    flex: 1;
+    height: 150px;
     overflow-y: auto;
+    background: #747171;
     padding: 10px;
-}
-
-.chat-input {
-    display: flex;
-    padding: 10px;
-    background-color: var(--input-bg);
-}
-
-.chat-input input {
-    flex: 1;
-    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    text-align: left;
 }
 
 .message {
-    padding: 8px;
-    margin: 5px 0;
-    border-radius: 8px;
-    max-width: 70%;
+    padding: 6px;
+    margin: 4px 0;
+    background: #444;
+    border-radius: 5px;
+    color: #fff;
 }
 
-.message.sent {
-    background: #dcf8c6;
-    align-self: flex-end;
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start;
 }
-
-.message.received {
-    background: #f1f1f1;
-    align-self: flex-start;
+.welcome-logo {
+    width: 180px; /* Or any size you want */
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 10px; /* Add some spacing below the logo */
 }
-
-/* Waiting Animation */
-.waiting-animation {
-    text-align: center;
-    padding: 20px;
-    animation: pulse 1.5s infinite;
-    color: var(--text-color);
-}
-
-@keyframes pulse {
-    0% { opacity: 0.4; }
-    50% { opacity: 1; }
-    100% { opacity: 0.4; }
-}
-

@@ -1,34 +1,42 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <title>Welcome to Random Chat</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Chat App</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="mode-toggle">
-        <button id="mode-btn">🌙 Dark Mode</button>
+<body class="welcome-page">
+
+<div class="welcome-container">
+    <img class="welcome-logo" src="logo.png" alt="Logo"> <!-- Replace with your logo URL -->
+    <h1>Talk with Starngers...</h1>
+
+    <input type="text" id="username" placeholder="Enter your name">
+
+    <div class="checkbox-container">
+        <input type="checkbox" id="agree">
+        <label for="agree">I agree to the <a href="#">terms & conditions</a></label>
     </div>
-    <div class="name-overlay" id="name-overlay">
-        <h2>Enter Your Name</h2>
-        <input type="text" id="username" placeholder="Your name...">
-        <button onclick="enterChat()">Start Chat</button>
-    </div>
-    <div class="chat-container" style="display:none;">
-        <div class="chat-header">
-            <h2>Chat With Strangers..</h2>
-        </div>
-        <div id="chat-box" class="chat-box">
-            <div class="waiting-animation">🔗 Connecting to a random user...</div>
-        </div>
-        <div class="chat-input">
-            <input type="text" id="message-input" placeholder="Type your message...">
-            <button id="send-btn">Send</button>
-        </div>
-    </div>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js"></script>
+
+    <button onclick="startChat()">Start Chat</button>
+    <p id="status"></p>
+</div>
+
+<script>
+    function startChat() {
+        const name = document.getElementById('username').value.trim();
+        const agree = document.getElementById('agree').checked;
+        const status = document.getElementById('status');
+
+        if (!name || !agree) {
+            status.innerText = 'Please enter your name and agree to terms!';
+            status.style.color = 'red';
+            return;
+        }
+
+        localStorage.setItem('username', name);
+        window.location.href = 'chat.html';
+    }
+</script>
 </body>
 </html>

@@ -1,64 +1,93 @@
 const socket = io();
-let username = '';
-let paired = false;
+const username = localStorage.getItem('username');
+socket.emit('set name', username);
 
-const messageInput = document.getElementById('message-input');
-const sendButton = document.getElementById('send-btn');
-const chatBox = document.getElementById('chat-box');
-const chatContainer = document.querySelector('.chat-container');
-const nameOverlay = document.getElementById('name-overlay');
-const modeBtn = document.getElementById('mode-btn');
+let localStream;
+let remoteStream;
+let peerConnection;
 
-function enterChat() {
-    username = document.getElementById('username').value.trim();
-    if (username) {
-        nameOverlay.style.display = 'none';
-        chatContainer.style.display = 'flex';
-        socket.emit('set name', username);
+const chatMessages = document.getElementById('chat-messages');
+const chatInput = document.getElementById('chat-input');
+const localVideo = document.getElementById('localVideo');
+const remoteVideo = document.getElementById('remoteVideo');
+
+navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+    localStream = stream;
+    localVideo.srcObject = stream;
+});
+
+socket.on('paired', async ({ id, name }) => {
+    chatMessages.innerHTML = `<p>Connected to Stranger</p>`;
+    createPeerConnection();
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+});
+
+socket.on('stranger left', () => {
+    chatMessages.innerHTML = `<p>Stranger disconnected. Waiting for new one...</p>`;
+    closeConnection();
+});
+
+socket.on('chat message', (data) => {
+    appendMessage(`Stranger: ${data.message}`);
+});
+
+socket.on('video-offer', async (data) => {
+    createPeerConnection();
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+    socket.emit('video-answer', { answer });
+});
+
+socket.on('video-answer', async (data) => {
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+});
+
+socket.on('ice-candidate', (data) => {
+    peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+});
+
+function sendMessage() {
+    const message = chatInput.value.trim();
+    if (message) {
+        appendMessage(`You: ${message}`);
+        socket.emit('chat message', { message });
+        chatInput.value = '';
     }
 }
 
-function appendMessage(message, type = 'received') {
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
+
+function appendMessage(msg) {
     const div = document.createElement('div');
-    div.classList.add('message', type);
-    div.innerText = message;
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    div.innerText = msg;
+    chatMessages.appendChild(div);
 }
 
-function setWaiting() {
-    chatBox.innerHTML = '<div class="waiting-animation">🔗 Connecting to a random user...</div>';
+function createPeerConnection() {
+    peerConnection = new RTCPeerConnection();
+    peerConnection.onicecandidate = (e) => {
+        if (e.candidate) socket.emit('ice-candidate', { candidate: e.candidate });
+    };
+    peerConnection.ontrack = (e) => {
+        remoteVideo.srcObject = e.streams[0];
+    };
+    peerConnection.createOffer().then(offer => {
+        peerConnection.setLocalDescription(offer);
+        socket.emit('video-offer', { offer });
+    });
 }
 
-socket.on('paired', () => {
-    paired = true;
-    chatBox.innerHTML = ''; // Clear waiting
-    appendMessage('🎉 Connected to a stranger!', 'system');
-});
+function closeConnection() {
+    peerConnection && peerConnection.close();
+    peerConnection = null;
+    remoteVideo.srcObject = null;
+}
 
-socket.on('partner left', () => {
-    paired = false;
-    appendMessage('⚠️ Partner disconnected. Finding a new partner...', 'system');
-    setTimeout(() => {
-        setWaiting();
-        socket.emit('set name', username); // Re-announce after disconnect
-    }, 2000);
-});
-
-sendButton.addEventListener('click', () => {
-    const message = messageInput.value.trim();
-    if (message && paired) {
-        appendMessage(`You: ${message}`, 'sent');
-        socket.emit('chat message', message);
-        messageInput.value = '';
-    }
-});
-
-socket.on('chat message', (message) => {
-    appendMessage(`Stranger: ${message}`, 'received');
-});
-
-modeBtn.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    modeBtn.innerText = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
-});
+function skipStranger() {
+    socket.emit('skip');
+    closeConnection();
+}

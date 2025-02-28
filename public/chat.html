@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Uncrowned Chat</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="chat-page">
+
+<div class="chat-container">
+    <div class="video-section">
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay></video>
+    </div>
+
+    <div class="chat-box" id="chat-box"></div>
+
+    <div class="chat-input">
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+        <button onclick="skip()">Skip</button>
+    </div>
+</div>
+
+<script src="chat.js"></script>
+</body>
+</html>
