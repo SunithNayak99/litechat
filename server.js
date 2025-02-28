@@ -12,40 +12,29 @@ app.use(express.static(path.join(__dirname, 'public')));
 let waitingUser = null;
 
 io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
-
-    socket.on('set name', (name) => {
-        socket.username = name;
+    socket.on('set name', () => {
         if (waitingUser) {
-            socket.partner = waitingUser;
-            waitingUser.partner = socket;
-
-            socket.emit('paired');
-            waitingUser.emit('paired');
-
+            pairUsers(waitingUser, socket);
             waitingUser = null;
         } else {
             waitingUser = socket;
         }
     });
 
-    socket.on('chat message', (msg) => {
-        if (socket.partner) {
-            socket.partner.emit('chat message', msg);
-        }
+    socket.on('chat message', (data) => io.to(data.to).emit('chat message', data));
+
+    ['video-offer', 'video-answer', 'ice-candidate'].forEach(event => {
+        socket.on(event, (data) => io.to(data.to).emit(event, data));
     });
 
-    socket.on('disconnect', () => {
-        if (socket.partner) {
-            socket.partner.emit('partner left');
-            socket.partner.partner = null;
-        } else if (waitingUser === socket) {
-            waitingUser = null;
-        }
-        console.log('User disconnected:', socket.id);
-    });
+    socket.on('skip', () => pairUsers(waitingUser, socket));
+
+    socket.on('disconnect', () => { if (waitingUser === socket) waitingUser = null; });
 });
 
-server.listen(3000, () => {
-    console.log('Server running at http://localhost:3000');
-});
+function pairUsers(user1, user2) {
+    user1.emit('paired', user2.id);
+    user2.emit('paired', user1.id);
+}
+
+server.listen(3000, () => console.log('Running on http://localhost:3000'));
